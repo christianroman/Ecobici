@@ -18,12 +18,14 @@ The app demonstrates how to use MapKit, Core Location, AFNetworking 2.0 and Mant
 * Detalle de la estacion (Direccion, nombre, referencia, delegación).
 * Visualizacion de Rutas seguras y principales Ciclovias del DF.
 
+<img src="http://chroman.me/wp-content/uploads/2014/01/iphone.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone2.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone3.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone4.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone5.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone6.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone7.png" width="512" alt="">
+<img src="http://chroman.me/wp-content/uploads/2014/01/iphone8.png" width="512" alt="">
 
 Installation
 ------------
