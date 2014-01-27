@@ -7,6 +7,7 @@ The app demonstrates how to use MapKit, Core Location, AFNetworking 2.0 and Mant
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone2.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone3.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone4.png" width="512" alt="">
+<img src="http://chroman.me/wp-content/uploads/2014/01/iphone5.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone6.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone7.png" width="512" alt="">
 
