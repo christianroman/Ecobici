@@ -7,10 +7,10 @@ The app demonstrates how to use MapKit, Core Location, AFNetworking 2.0 and Mant
 * Disponibilidad de Ecobici conforme a lo que necesites en el momento (Bicicletas o Espacios) y cantidad requerida.
 * Visualización conforme a la disponibilidad de la estacion:
 
-Rojo: Ni te acerques.
-Amarillo: Quizas encuentres.
-Verde: Probablemente encuentres.
-Verde oscuro: Seguramente encuentres.
+    * **Rojo**: Ni te acerques.
+    * **Amarillo**: Quizas encuentres.
+    * **Verde**: Probablemente encuentres.
+    * **Verde oscuro**: Seguramente encuentres.
 
 * Filtro de estaciones conforme al nivel actual de la estacion (Verde oscuro, Verde, Amarillo y Rojo).
 * Detalle de la estacion (Direccion, nombre, referencia, delegación).
