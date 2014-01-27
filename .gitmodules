@@ -1,0 +1,12 @@
+[submodule "Libraries/Mantle"]
+	path = Libraries/Mantle
+	url = https://github.com/MantleFramework/Mantle
+[submodule "Libraries/AFNetworking"]
+	path = Libraries/AFNetworking
+	url = https://github.com/AFNetworking/AFNetworking.git
+[submodule "Libraries/MRProgress"]
+	path = Libraries/MRProgress
+	url = https://github.com/mrackwitz/MRProgress.git
+[submodule "Libraries/AMSlideMenu"]
+	path = Libraries/AMSlideMenu
+	url = https://github.com/arturdev/AMSlideMenu.git

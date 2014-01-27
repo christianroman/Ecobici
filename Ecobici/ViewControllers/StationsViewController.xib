@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="StationsViewController">
+            <connections>
+                <outlet property="itemsRequiredItem" destination="eXa-fY-1Q9" id="Co4-dV-AqG"/>
+                <outlet property="itemsRequiredStepper" destination="jSo-nW-mKL" id="oNg-ec-vBR"/>
+                <outlet property="mapView" destination="He8-F6-dVq" id="k4r-ZU-XRb"/>
+                <outlet property="slider" destination="Vlc-cs-OIz" id="I7z-H7-d9P"/>
+                <outlet property="toolbar" destination="Fch-9J-ddq" id="mEz-BX-CLu"/>
+                <outlet property="toolbarTop" destination="6CJ-ZE-heD" id="f51-0k-XgG"/>
+                <outlet property="view" destination="1" id="3"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="1">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" id="He8-F6-dVq">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <connections>
+                        <outlet property="delegate" destination="-1" id="2Eq-eP-d7W"/>
+                    </connections>
+                </mapView>
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="Fch-9J-ddq">
+                    <rect key="frame" x="0.0" y="436" width="320" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <items>
+                        <barButtonItem style="plain" id="1Xs-8w-5Du">
+                            <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="5AR-Mp-IBf">
+                                <rect key="frame" x="16" y="7" width="140" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <segments>
+                                    <segment title="Bicis"/>
+                                    <segment title="Espacios"/>
+                                </segments>
+                                <connections>
+                                    <action selector="modeSelectionControlChanged:" destination="-1" eventType="valueChanged" id="63c-AW-3xi"/>
+                                </connections>
+                            </segmentedControl>
+                        </barButtonItem>
+                        <barButtonItem systemItem="flexibleSpace" id="hQ2-iJ-BbY"/>
+                        <barButtonItem title="1" id="eXa-fY-1Q9"/>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="UDa-gS-KpH"/>
+                        <barButtonItem style="plain" id="5GU-7l-AhD">
+                            <stepper key="customView" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minimumValue="1" maximumValue="5" id="jSo-nW-mKL">
+                                <rect key="frame" x="210" y="8" width="94" height="29"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <connections>
+                                    <action selector="itemsRequiredStepperChanged:" destination="-1" eventType="valueChanged" id="XUh-L9-3lv"/>
+                                </connections>
+                            </stepper>
+                        </barButtonItem>
+                    </items>
+                </toolbar>
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="6CJ-ZE-heD">
+                    <rect key="frame" x="0.0" y="64" width="320" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <items>
+                        <barButtonItem style="plain" id="pMY-jz-JOq">
+                            <slider key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="5" minValue="1" maxValue="5" id="Vlc-cs-OIz">
+                                <rect key="frame" x="14" y="5" width="118" height="34"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <action selector="sliderChanged:" destination="-1" eventType="touchUpInside" id="QB7-Ea-tCf"/>
+                                </connections>
+                            </slider>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="M2c-cM-hk7"/>
+                        <barButtonItem title="Estaciones" id="rwL-qe-0Kq">
+                            <connections>
+                                <action selector="showRemoveStations:" destination="-1" id="yeZ-Y9-uaH"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem title="Rutas" id="Mpu-0e-FTE">
+                            <connections>
+                                <action selector="showRemoveRoutes:" destination="-1" id="5hh-86-KUz"/>
+                            </connections>
+                        </barButtonItem>
+                    </items>
+                </toolbar>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+            <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
+            <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
+        </view>
+    </objects>
+</document>
