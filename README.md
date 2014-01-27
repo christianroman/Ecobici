@@ -89,3 +89,6 @@ Contact
   [1]: http://chroman.me
   [2]: mailto:chroman16@gmail.com
   [3]: http://twitter.com/chroman
+  [4]: https://github.com/AFNetworking/AFNetworking
+  [5]: https://github.com/MantleFramework/Mantle
+  [6]: https://github.com/mrackwitz/MRProgress
