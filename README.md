@@ -4,6 +4,18 @@ An open source iOS app to find Ecobici`s stations using NSURLSession, [AFNetwork
 
 The app demonstrates how to use MapKit, Core Location, AFNetworking 2.0 and Mantle frameworks.
 
+* Disponibilidad de Ecobici conforme a lo que necesites en el momento (Bicicletas o Espacios) y cantidad requerida.
+* Visualización conforme a la disponibilidad de la estacion:
+
+Rojo: Ni te acerques.
+Amarillo: Quizas encuentres.
+Verde: Probablemente encuentres.
+Verde oscuro: Seguramente encuentres.
+
+* Filtro de estaciones conforme al nivel actual de la estacion (Verde oscuro, Verde, Amarillo y Rojo).
+* Detalle de la estacion (Direccion, nombre, referencia, delegación).
+* Visualizacion de Rutas seguras y principales Ciclovias del DF.
+
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone2.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone3.png" width="512" alt="">
 <img src="http://chroman.me/wp-content/uploads/2014/01/iphone4.png" width="512" alt="">
