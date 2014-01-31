@@ -12,7 +12,7 @@
 #import "MRProgressOverlayView.h"
 #import "StationsViewController.h"
 #import "UIColor+Utilities.h"
-#import "UIDevice+ScreenSize.h"
+#import "MSDynamicsDrawerViewController.h"
 
 @interface MainViewController ()
 
@@ -62,11 +62,7 @@
     
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     
-    self.title = @"";
-    
-    if ([[UIDevice currentDevice] screenSize] == UIDeviceScreenSize4Inch) {
-        self.imageView.image = [UIImage imageNamed:@"background5"];
-    }
+    self.imageView.image = [UIImage imageNamed:@"Background"];
     
     [_button setTitleColor:self.navigationController.view.window.tintColor forState:UIControlStateNormal];
     [_button setTitleColor:[UIColor darkerColorForColor:self.navigationController.view.window.tintColor] forState:UIControlStateHighlighted];

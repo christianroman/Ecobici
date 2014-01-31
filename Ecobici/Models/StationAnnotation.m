@@ -20,4 +20,9 @@
     return self;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"<%@: %p, sid: %@ bikes: %@, free: %@>", NSStringFromClass([self class]), self, self.stationId, self.bikes, self.free];
+}
+
 @end

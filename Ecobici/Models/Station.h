@@ -8,7 +8,7 @@
 
 #import <Mantle/Mantle.h>
 
-@interface Station : MTLModel <MTLJSONSerializing/*, MTLManagedObjectSerializing*/>
+@interface Station : MTLModel <MTLJSONSerializing, MTLManagedObjectSerializing>
 
 @property (nonatomic, copy, readonly) NSString *name;
 @property (nonatomic, copy, readonly) NSNumber *free;

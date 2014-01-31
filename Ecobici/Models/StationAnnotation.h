@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <MapKit/MKAnnotation.h>
 
+@class CalloutAnnotation;
+
 @interface StationAnnotation : NSObject <MKAnnotation>
 
 @property (nonatomic, assign) CLLocationCoordinate2D coordinate;
@@ -17,7 +19,9 @@
 @property (nonatomic, strong) NSNumber *stationId;
 @property (nonatomic, strong) NSNumber *bikes;
 @property (nonatomic, strong) NSNumber *free;
-@property (nonatomic, assign) int idx;
+@property (nonatomic, assign) NSInteger idx;
+
+@property (nonatomic, weak) CalloutAnnotation *calloutAnnotation;
 
 - (instancetype)initWithCoordinate:(CLLocationCoordinate2D)coordinate title:(NSString *)title;
 

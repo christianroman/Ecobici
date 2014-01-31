@@ -7,6 +7,12 @@
 [submodule "Libraries/MRProgress"]
 	path = Libraries/MRProgress
 	url = https://github.com/mrackwitz/MRProgress.git
-[submodule "Libraries/AMSlideMenu"]
-	path = Libraries/AMSlideMenu
-	url = https://github.com/arturdev/AMSlideMenu.git
+[submodule "Libraries/MSDynamicsDrawerViewController"]
+	path = Libraries/MSDynamicsDrawerViewController
+	url = https://github.com/monospacecollective/MSDynamicsDrawerViewController.git
+[submodule "Libraries/PSLocationManager"]
+	path = Libraries/PSLocationManager
+	url = https://github.com/perspecdev/PSLocationManager.git
+[submodule "Libraries/libextobjc"]
+	path = Libraries/libextobjc
+	url = https://github.com/jspahrsummers/libextobjc.git

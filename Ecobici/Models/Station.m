@@ -27,26 +27,65 @@
              };
 }
 
-#pragma mark - MTLManagedObjectSerializing
 /*
++ (NSValueTransformer *)sidJSONTransformer {
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString *string) {
+        return @([string integerValue]);
+    } reverseBlock:^(NSNumber *sid) {
+        return [NSString stringWithFormat:@"%d", [sid integerValue]];
+    }];
+}
+
++ (NSValueTransformer *)latJSONTransformer {
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString *string) {
+        return @([string doubleValue]);
+    } reverseBlock:^(NSNumber *lat) {
+        return [NSString stringWithFormat:@"%f", [lat doubleValue]];
+    }];
+}
+
++ (NSValueTransformer *)lngJSONTransformer {
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString *string) {
+        return @([string doubleValue]);
+    } reverseBlock:^(NSNumber *lat) {
+        return [NSString stringWithFormat:@"%f", [lat doubleValue]];
+    }];
+}
+
++ (NSValueTransformer *)bikesJSONTransformer {
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString *string) {
+        return @([string integerValue]);
+    } reverseBlock:^(NSNumber *bikes) {
+        return [NSString stringWithFormat:@"%d", [bikes integerValue]];
+    }];
+}
+
++ (NSValueTransformer *)freeJSONTransformer {
+    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSString *string) {
+        return @([string integerValue]);
+    } reverseBlock:^(NSNumber *free) {
+        return [NSString stringWithFormat:@"%d", [free integerValue]];
+    }];
+}
+
++ (id)transformedValue:(id)value
+{
+    return [NSNumber numberWithFloat:[value floatValue]];
+}
+ */
+
+#pragma mark - MTLManagedObjectSerializing
+
 + (NSDictionary *)managedObjectKeysByPropertyKey
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
-    [dictionary setObject:@"name" forKey:@"name"];
-    [dictionary setObject:@"principal" forKey:@"principal"];
-    [dictionary setObject:@"secundario" forKey:@"secundario"];
-    [dictionary setObject:@"referencia" forKey:@"referencia"];
-    [dictionary setObject:@"colonia" forKey:@"colonia"];
-    [dictionary setObject:@"delegacion" forKey:@"delegacion"];
-    [dictionary setObject:@"lat" forKey:@"lat"];
-    [dictionary setObject:@"lng" forKey:@"lng"];
-    [dictionary setObject:@"sid" forKey:@"id"];
-    [dictionary setObject:@"name" forKey:@"name"];
+    [dictionary setObject:@"sid" forKey:@"estacion_id"];
+    [dictionary setObject:@"lng" forKey:@"y"];
+    [dictionary setObject:@"lat" forKey:@"x"];
+    [dictionary setObject:@"name" forKey:@"nombre"];
     [dictionary setObject:@"bikes" forKey:@"bicicletas"];
     [dictionary setObject:@"free" forKey:@"lugares"];
-    
-    [dictionary setObject:[NSNumber numberWithBool:YES] forKey:@"status"];
     
     return dictionary;
 }
@@ -55,7 +94,6 @@
 {
     return NSStringFromClass([self class]);
 }
- */
 
 - (NSString *)description
 {

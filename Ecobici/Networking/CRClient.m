@@ -39,6 +39,7 @@ static NSString * const kCRClientAPIBaseURLString = @"http://ecobici.herokuapp.c
     {
         self.requestSerializer = [AFHTTPRequestSerializer serializer];
         self.responseSerializer = [AFJSONResponseSerializer serializer];
+        //self.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
         
         //[self.requestSerializer setAuthorizationHeaderFieldWithUsername:@"d3ub5Uchuba28phavu32b62ratreveku" password:@"sawr5DEthaPHeyes"];
         //[self.requestSerializer setValue:@"Starbucks/2.6.1 CFNetwork/672.0.2 Darwin/14.0.0" forHTTPHeaderField:@"User-Agent"];

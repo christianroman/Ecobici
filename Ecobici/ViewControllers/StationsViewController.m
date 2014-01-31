@@ -6,22 +6,26 @@
 //  Copyright (c) 2014 Christian Roman. All rights reserved.
 //
 
+#import "MapSettingsViewController.h"
 #import "StationsViewController.h"
-#import "Station.h"
-#import "StationAnnotation.h"
-#import "CRClient+Stations.h"
-#import "MRProgress.h"
-#import "UIColor+Utilities.h"
 #import "StationAnnotationView.h"
+#import "DetailViewController.h"
 #import "MKMapView+ZoomLevel.h"
-#import "CalloutView.h"
+#import "CalloutAnnotation.h"
+#import "CRClient+Stations.h"
+#import "StationAnnotation.h"
+#import "UIColor+Utilities.h"
+#import "MRProgress.h"
+#import "Station.h"
 
-#define CGRectPinLevelCity          CGRectMake(0, 0, 50, 50)
-#define CGRectPinLevelBorough       CGRectMake(0, 0, 25, 25)
-#define CGRectPinLevelHood          CGRectMake(0, 0, 60, 60)
+#define CGRectPinLevelCity                      CGRectMake(0, 0, 50, 50)
+#define CGRectPinLevelBorough                   CGRectMake(0, 0, 25, 25)
+#define CGRectPinLevelHood                      CGRectMake(0, 0, 60, 60)
+#define CGRectPinLevelStreet                    CGRectMake(0, 0, 80, 80)
+#define CGRectPinLevelBike                      CGRectMake(0, 0, 100, 100)
 
-#define CGRectPinLevelStreet        CGRectMake(0, 0, 80, 80)
-#define CGRectPinLevelBike          CGRectMake(0, 0, 100, 100)
+#define kDidSwitchShowHideStationsNotification  @"kDidSwitchShowHideStationsNotification"
+#define kDidSwitchShowHideRoutesNotification    @"kDidSwitchShowHideRoutesNotification"
 
 @import MapKit;
 @import CoreLocation;
@@ -40,35 +44,27 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
     CRMapZoomLevelHood = 2
 };
 
-@property (nonatomic, strong) CLLocationManager *locationManager;
-@property (nonatomic, strong) CLLocation *currentUserLocation;
-
-@property (nonatomic, strong) NSMutableArray *mapAnnotations;
-@property (nonatomic, strong) NSMutableArray *filteredMapAnnotations;
-
-@property (nonatomic, weak) IBOutlet MKMapView *mapView;
-@property (nonatomic, strong) CalloutView *calloutView;
-
-@property (nonatomic, weak) IBOutlet UIBarButtonItem *itemsRequiredItem;
-@property (nonatomic, weak) IBOutlet UIStepper *itemsRequiredStepper;
-@property (nonatomic, strong) NSNumber *itemsRequired;
-
-@property (nonatomic, assign) CRDisplayMode displayMode;
-
-@property (nonatomic, assign) CRMapZoomLevel currentMapZoomLevel;
-
-@property (nonatomic, assign) BOOL allowsAnimation;
-
-@property (nonatomic, weak) IBOutlet UIToolbar *toolbar;
-
-@property (nonatomic, weak) IBOutlet UIToolbar *toolbarTop;
-
-@property (nonatomic, strong) NSMutableArray *routesOverlays;
-
+@property (nonatomic, assign) BOOL filtered;
 @property (nonatomic, assign) BOOL routesShown;
 @property (nonatomic, assign) BOOL stationsShown;
+@property (nonatomic, assign) BOOL allowsAnimation;
+@property (nonatomic, strong) NSArray *filterValues;
+@property (nonatomic, strong) NSNumber *itemsRequired;
+@property (nonatomic, assign) CRDisplayMode displayMode;
+@property (nonatomic, strong) NSMutableArray *routesOverlays;
+@property (nonatomic, strong) NSMutableArray *mapAnnotations;
+@property (nonatomic, strong) NSArray *filteredMapAnnotations;
+@property (nonatomic, strong) CLLocation *currentUserLocation;
+@property (nonatomic, assign) CRMapZoomLevel currentMapZoomLevel;
+@property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic, weak) MSDynamicsDrawerViewController *dynamicsDrawerViewController;
 
-@property (nonatomic, weak) IBOutlet UISlider *slider;
+@property (nonatomic, weak) IBOutlet MKMapView *mapView;
+@property (nonatomic, weak) IBOutlet UIToolbar *toolbarTop;
+@property (nonatomic, weak) IBOutlet UISlider *filterSlider;
+@property (nonatomic, weak) IBOutlet UIToolbar *toolbarBottom;
+@property (nonatomic, weak) IBOutlet UIStepper *itemsRequiredStepper;
+@property (nonatomic, weak) IBOutlet UIBarButtonItem *itemsRequiredItem;
 
 @end
 
@@ -85,57 +81,132 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
     return self;
 }
 
-- (void)setUp
-{
-    _currentUserLocation = [[CLLocation alloc] init];
-    _locationManager = [[CLLocationManager alloc] init];
-    _locationManager.delegate = self;
-    _locationManager.distanceFilter = kCLDistanceFilterNone;
-    _locationManager.desiredAccuracy = kCLLocationAccuracyBest;
-    [_locationManager startUpdatingLocation];
-    
-    // Configure map zoom level
-    _currentMapZoomLevel = CRMapZoomLevelCity;
-    
-    // Set the display mode
-    _displayMode = CRDisplayModeBikes;
-    
-    // Set the bikes required
-    _itemsRequired = @1;
-    
-    _allowsAnimation = YES;
-}
-
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
-    
-    //self.navigationController.navigationBar.topItem.title = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [self configureDynamicDrawerViewController];
+    [self configureUI];
+    [self configureMapView];
+    [self fetchStations];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - Class Methods
+
+- (void)setUp
+{
+    _currentUserLocation = [[CLLocation alloc] init];
+    _locationManager = [[CLLocationManager alloc] init];
+    _locationManager.delegate = self;
+    _locationManager.distanceFilter = 10.0f;
+    _locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    [_locationManager startUpdatingLocation];
     
+    _currentMapZoomLevel = CRMapZoomLevelCity;
+    _displayMode = CRDisplayModeBikes;
+    _itemsRequired = @1;
+    _allowsAnimation = YES;
+    _filtered = NO;
+    
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    
+    [center addObserverForName:kDidSwitchShowHideStationsNotification
+                        object:nil
+                         queue:nil
+                    usingBlock:^(NSNotification *notification)
+     {
+         [self showRemoveStations:notification];
+     }];
+    
+    [center addObserverForName:kDidSwitchShowHideRoutesNotification
+                        object:nil
+                         queue:nil
+                    usingBlock:^(NSNotification *notification)
+     {
+         [self showRemoveRoutes:notification];
+     }];
+    
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"routesShown"];
+}
+
+- (void)configureUI
+{
     self.title = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
     
-    UIBarButtonItem *refreshButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(refreshStations)];
+    UIBarButtonItem *paneRevealRightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Right Reveal Icon"]
+                                                                                     style:UIBarButtonItemStyleBordered
+                                                                                    target:self
+                                                                                    action:@selector(dynamicsDrawerRevealRightBarButtonItemTapped:)];
     
-    [self.navigationItem setRightBarButtonItem:refreshButtonItem animated:NO];
+    UIBarButtonItem *refreshButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
+                                                                                       target:self
+                                                                                       action:@selector(refreshStations)];
     
-    // Region coordinates
+    UIBarButtonItem *filterButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch
+                                                                                      target:self
+                                                                                      action:@selector(showHideActionToolbar)];
+    
+    [self.navigationItem setRightBarButtonItems:@[paneRevealRightBarButtonItem, filterButtonItem, refreshButtonItem]];
+    
+    [_toolbarTop setBackgroundImage:[UIImage imageNamed:@"Slider Background"]
+                 forToolbarPosition:UIBarPositionAny
+                         barMetrics:UIBarMetricsDefault];
+}
+
+- (void)configureDynamicDrawerViewController
+{
+    _dynamicsDrawerViewController = (MSDynamicsDrawerViewController *)self.navigationController.parentViewController;
+    MapSettingsViewController *mapSettingsViewController = [MapSettingsViewController new];
+    [_dynamicsDrawerViewController addStylersFromArray:@[[MSDynamicsDrawerParallaxStyler styler],
+                                                         [MSDynamicsDrawerShadowStyler styler]]
+                                          forDirection:MSDynamicsDrawerDirectionRight];
+    [_dynamicsDrawerViewController setPaneDragRevealEnabled:NO forDirection:MSDynamicsDrawerDirectionRight];
+    [_dynamicsDrawerViewController setDrawerViewController:mapSettingsViewController forDirection:MSDynamicsDrawerDirectionRight];
+}
+
+- (void)fetchStations
+{
+    if (!_stations) {
+        [MRProgressOverlayView showOverlayAddedTo:self.navigationController.view animated:YES];
+        [[CRClient sharedClient] getStationsWithCompletion:^(NSArray *stations, NSError *error) {
+            if (!error){
+                [MRProgressOverlayView dismissOverlayForView:self.navigationController.view animated:YES];
+                _stations = stations;
+                [self configureMapViewForAnnotations];
+            } else {
+                [MRProgressOverlayView dismissOverlayForView:self.navigationController.view animated:YES];
+                
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", nil)
+                                                                    message:[error localizedDescription]
+                                                                   delegate:nil
+                                                          cancelButtonTitle:@"OK"
+                                                          otherButtonTitles:nil, nil];
+                [alertView show];
+            }
+        }];
+    }
+}
+
+- (void)configureMapView
+{
     double lat = 19.433246;
     double lng = -99.170175;
     
     MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(CLLocationCoordinate2DMake(lat, lng), 9000, 9000);
     
-    //[_mapView regionThatFits:region];
-    
     [_mapView setRegion:region animated:NO];
     
-    // Overlay darker-polygon
     MKMapRect worldRect = MKMapRectWorld;
     MKMapPoint point1 = MKMapRectWorld.origin;
     MKMapPoint point2 = MKMapPointMake(point1.x + worldRect.size.width, point1.y);
@@ -144,10 +215,11 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
     MKMapPoint points[4] = {point1, point2, point3, point4};
     MKPolygon *polygon = [MKPolygon polygonWithPoints:points count:4];
     [_mapView addOverlay:polygon];
-    
+}
+
+- (void)configureMapViewForAnnotations
+{
     _mapAnnotations = [[NSMutableArray alloc] initWithCapacity:[_stations count]];
-    
-    _filteredMapAnnotations = [[NSMutableArray alloc] init];
     
     for (Station *station in _stations) {
         StationAnnotation *annotation = [[StationAnnotation alloc] init];
@@ -160,20 +232,39 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
         [annotation setFree:station.free];
         [annotation setIdx:[_stations indexOfObject:station]];
         [_mapAnnotations addObject:annotation];
-        
-        if ([station.bikes intValue] > 10) {
-            [_filteredMapAnnotations addObject:annotation];
-        }
     }
     
     [_mapView addAnnotations:_mapAnnotations];
     _stationsShown = YES;
-    
-    if(![_stations count]) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:NSLocalizedString(@"Sin resultados", nil) delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-        [alertView show];
+    [[NSUserDefaults standardUserDefaults] setBool:_stationsShown forKey:@"stationsShown"];
+}
+
+- (void)dynamicsDrawerRevealRightBarButtonItemTapped:(id)sender
+{
+    [self.dynamicsDrawerViewController setPaneState:MSDynamicsDrawerPaneStateOpen
+                                        inDirection:MSDynamicsDrawerDirectionRight
+                                           animated:YES
+                              allowUserInterruption:YES
+                                         completion:nil];
+}
+
+- (void)updateMapViewAnnotations
+{
+    [_mapView removeAnnotations:_mapView.annotations];
+    [_mapView addAnnotations:_mapAnnotations];
+}
+
+- (void)updateFilteredMapViewAnnotationsAndFetchingRequired:(BOOL)required
+{
+    if (required) {
+        _filteredMapAnnotations = nil;
+        _filteredMapAnnotations = [NSArray new];
+        _filteredMapAnnotations = [_mapAnnotations filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
+            return [self evaluateMapAnnotation:object];
+        }]];
     }
-    
+    [_mapView removeAnnotations:_mapView.annotations];
+    [_mapView addAnnotations:_filteredMapAnnotations];
 }
 
 - (IBAction)modeSelectionControlChanged:(UISegmentedControl *)segmentedControl
@@ -189,32 +280,42 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
     }
     
     _allowsAnimation = NO;
-    [self updateMapViewAnnotations];
+    
+    if (_filtered) {
+        [self updateFilteredMapViewAnnotationsAndFetchingRequired:YES];
+    } else {
+        [self updateMapViewAnnotations];
+    }
 }
 
 - (IBAction)itemsRequiredStepperChanged:(id)sender
 {
     [_itemsRequiredItem setTitle:[NSString stringWithFormat:@"%d", (NSInteger)_itemsRequiredStepper.value]];
     _itemsRequired = @((NSInteger)_itemsRequiredStepper.value);
-    
     _allowsAnimation = NO;
-    [self updateMapViewAnnotations];
+    
+    if (_filtered) {
+        [self updateFilteredMapViewAnnotationsAndFetchingRequired:YES];
+    } else {
+        [self updateMapViewAnnotations];
+    }
 }
 
-- (int)pinColorWithValue:(NSNumber *)value bikesRequired:(NSNumber *)bikesRequired
+- (IBAction)sliderChanged:(id)sender
 {
-    int availables = [value intValue];
-    int required = [bikesRequired doubleValue];
-    
-    if (availables - required < 0) {
-        return 4;
-    } else if (availables - required < 5) {
-        return 3;
-    } else if (availables - required < 10) {
-        return 2;
-    } else {
-        return 1;
+    int sliderValue = (NSUInteger)(_filterSlider.value + 0.5);
+    [_filterSlider setValue:sliderValue animated:NO];
+    _filtered = sliderValue == 4 ? NO : YES;
+    [self updateFilteredMapViewAnnotationsAndFetchingRequired:YES];
+}
+
+- (BOOL)evaluateMapAnnotation:(StationAnnotation *)stationAnnotation
+{
+    NSNumber *bikesOrFree = stationAnnotation.bikes;
+    if (_displayMode == CRDisplayModeFree) {
+        bikesOrFree = stationAnnotation.free;
     }
+    return [self pinColorWithValue:bikesOrFree bikesRequired:_itemsRequired] <= (int)_filterSlider.value;
 }
 
 - (void)refreshStations
@@ -223,14 +324,14 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
     
     [[CRClient sharedClient] getStationsWithCompletion:^(NSArray *stations, NSError *error) {
         if (!error){
-            
             [MRProgressOverlayView dismissOverlayForView:self.navigationController.view animated:YES];
             
             _stations = [[NSArray alloc] initWithArray:stations];
-            
             [_mapView removeAnnotations:_mapAnnotations];
-            
             _mapAnnotations = [[NSMutableArray alloc] initWithCapacity:[_stations count]];
+            
+            _filtered = NO;
+            [_filterSlider setValue:4];
             
             for (Station *station in _stations) {
                 StationAnnotation *annotation = [[StationAnnotation alloc] init];
@@ -248,18 +349,20 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
             [_mapView addAnnotations:_mapAnnotations];
             
             if(![_stations count]) {
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:NSLocalizedString(@"Sin resultados", nil) delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                                    message:@"Sin resultados"
+                                                                   delegate:nil cancelButtonTitle:@"OK"
+                                                          otherButtonTitles:nil, nil];
                 [alertView show];
             }
             
-            
         } else {
-            
             [MRProgressOverlayView dismissOverlayForView:self.navigationController.view animated:YES];
-            
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", nil) message:[error localizedDescription] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                                message:[error localizedDescription]
+                                                               delegate:nil cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil, nil];
             [alertView show];
-            
         }
     }];
 }
@@ -268,151 +371,107 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
 {
     _routesOverlays = [[NSMutableArray alloc] init];
     
-    /* */
-    MKMapPoint *pointsArray = malloc(sizeof(CLLocationCoordinate2D) * 7);
-    
-    pointsArray[0]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.427654, -99.202999));
-    pointsArray[1]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.427089, -99.201067));
-    pointsArray[2]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.423131, -99.175225));
-    pointsArray[3]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.435443, -99.149315));
-    pointsArray[4]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.440656, -99.143054));
-    pointsArray[5]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.440656, -99.143054));
-    pointsArray[6]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.448067, -99.134662));
-    
-    MKPolyline *line = [MKPolyline polylineWithPoints:pointsArray count:7];
-    
-    [_routesOverlays addObject:line];
-    
-    free(pointsArray);
-    
-    /* */
-    MKMapPoint *pointsArray2 = malloc(sizeof(CLLocationCoordinate2D) * 7);
-    
-    pointsArray2[0]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.419945, -99.177150));
-    pointsArray2[1]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.423400, -99.163620));
-    pointsArray2[2]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.425655, -99.153454));
-    pointsArray2[3]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.427206, -99.148072));
-    pointsArray2[4]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.425585, -99.131254));
-    pointsArray2[5]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.426008, -99.129908));
-    pointsArray2[6]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.425303, -99.125722));
-    
-    MKPolyline *line2 = [MKPolyline polylineWithPoints:pointsArray2 count:7];
-    
-    [_routesOverlays addObject:line2];
-    
-    free(pointsArray2);
-    
-    /* */
-    
-    MKMapPoint *pointsArray3 = malloc(sizeof(CLLocationCoordinate2D) * 11);
-    
-    pointsArray3[0]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.410689, -99.193889));
-    pointsArray3[1]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.406034, -99.202687));
-    pointsArray3[2]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.412146, -99.203159));
-    pointsArray3[3]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.415546, -99.203888));
-    pointsArray3[4]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.417489, -99.204961));
-    pointsArray3[5]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.418703, -99.203846));
-    pointsArray3[6]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.420403, -99.199983));
-    pointsArray3[7]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.420686, -99.199382));
-    pointsArray3[8]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.419553, -99.196464));
-    pointsArray3[9]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.414615, -99.193632));
-    pointsArray3[10]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.410811, -99.193889));
-    
-    MKPolyline *line3 = [MKPolyline polylineWithPoints:pointsArray3 count:11];
-    
-    [_routesOverlays addObject:line3];
-    
-    free(pointsArray3);
-    
-    /* */
-    
-    MKMapPoint *pointsArray4 = malloc(sizeof(CLLocationCoordinate2D) * 6);
-    
-    pointsArray4[0]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.439637, -99.183819));
-    pointsArray4[1]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.437937, -99.177897));
-    pointsArray4[2]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.433890, -99.171202));
-    pointsArray4[3]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.417458, -99.163992));
-    pointsArray4[4]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.406125, -99.160902));
-    pointsArray4[5]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.405478, -99.177897));
-    
-    MKPolyline *line4 = [MKPolyline polylineWithPoints:pointsArray4 count:6];
-    
-    [_routesOverlays addObject:line4];
-    
-    free(pointsArray4);
-    
-    /* */
-    
-    MKMapPoint *pointsArray5 = malloc(sizeof(CLLocationCoordinate2D) * 9);
-    
-    pointsArray5[0]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.456480, -99.148616));
-    pointsArray5[1]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.453954, -99.151830));
-    pointsArray5[2]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.445873, -99.152767));
-    pointsArray5[3]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.444737, -99.147277));
-    pointsArray5[4]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.437287, -99.148884));
-    pointsArray5[5]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.425795, -99.153437));
-    pointsArray5[6]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.406346, -99.154910));
-    pointsArray5[7]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.406725, -99.144465));
-    pointsArray5[8]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.408746, -99.127325));
-    
-    MKPolyline *line5 = [MKPolyline polylineWithPoints:pointsArray5 count:9];
-    
-    [_routesOverlays addObject:line5];
-    
-    free(pointsArray5);
-    
-    /* */
-    
-    MKMapPoint *pointsArray6 = malloc(sizeof(CLLocationCoordinate2D) * 5);
-    
-    pointsArray6[0]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.431604, -99.177406));
-    pointsArray6[1]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.430847, -99.180888));
-    pointsArray6[2]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.431352, -99.196689));
-    pointsArray6[3]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.432488, -99.208473));
-    pointsArray6[4]= MKMapPointForCoordinate(CLLocationCoordinate2DMake(19.439686, -99.205125));
-    
-    MKPolyline *line6 = [MKPolyline polylineWithPoints:pointsArray6 count:5];
-    
-    [_routesOverlays addObject:line6];
-    
-    free(pointsArray6);
-    
-    [_mapView addOverlays:_routesOverlays];
-    
-    _routesShown = YES;
-    
-    /*
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"ciclovias" ofType:@"json"];
-    NSString *jsonString = [[NSString alloc] initWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:NULL];
-    
-    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-    
     NSError *error = nil;
-    NSDictionary *data = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                        options:0
-                                                           error:&error];
+    NSData *JSONData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:&error];
+    id JSONObject = [NSJSONSerialization JSONObjectWithData:JSONData options:0 error:&error];
     
-    NSArray *features = [data objectForKey:@"features"];
+    NSArray *features = [JSONObject objectForKey:@"features"];
     
     for (NSDictionary *feature in features) {
-        NSDictionary *geometry = [feature objectForKey:@"geometry"];
-        NSArray *coordinates = [geometry objectForKey:@"coordinates"];
-        
-        CLLocationCoordinate2D *coordinateArray
-        = malloc(sizeof(CLLocationCoordinate2D) * coordinates.count);
-        
-        int caIndex = 0;
+        NSArray *coordinates = [feature objectForKey:@"coordinates"];
+        CLLocationCoordinate2D *coordinateArray = malloc(sizeof(CLLocationCoordinate2D) * coordinates.count);
+        int arrayIndex = 0;
         for (NSArray *coordinate in coordinates) {
-            coordinateArray[caIndex] = CLLocationCoordinate2DMake([[coordinate objectAtIndex:0] doubleValue], [[coordinate objectAtIndex:1] doubleValue]);
-            caIndex++;
+            coordinateArray[arrayIndex] = CLLocationCoordinate2DMake([[coordinate objectAtIndex:1] doubleValue], [[coordinate objectAtIndex:0] doubleValue]);
+            arrayIndex++;
         }
-        
+        MKPolyline *polyline = [MKPolyline polylineWithCoordinates:coordinateArray count:coordinates.count];
+        free(coordinateArray);
+        [_routesOverlays addObject:polyline];
     }
-    */
     
+    [_mapView addOverlays:_routesOverlays];
+    _routesShown = YES;
 }
 
-- (IBAction)showRemoveRoutes:(id)sender
+- (void)showHideActionToolbar
+{
+    if ([_toolbarTop isHidden]) {
+        [_toolbarTop setHidden:NO];
+        [UIView animateWithDuration:0.4 animations:^{
+            [_toolbarTop setAlpha:1.0];
+            _toolbarTop.frame = ^{
+                CGRect frame = _toolbarTop.frame;
+                frame.origin.y += _toolbarTop.frame.size.height;
+                return frame;
+            }();
+        } completion:nil];
+    } else {
+        [UIView animateWithDuration:0.4 animations:^{
+            [_toolbarTop setAlpha:0];
+            _toolbarTop.frame = ^{
+                CGRect frame = _toolbarTop.frame;
+                frame.origin.y -= _toolbarTop.frame.size.height;
+                return frame;
+            }();
+        } completion:^(BOOL finished) {
+            if (finished) {
+                [_toolbarTop setHidden:YES];
+            }
+        }];
+    }
+}
+
+- (void)showRemoveStations:(NSNotification *)notification
+{
+    if (_stationsShown) {
+        [_mapView removeAnnotations:_mapView.annotations];
+        _stationsShown = NO;
+        BOOL filterToolbarIsHidden = [_toolbarTop isHidden];
+        [UIView animateWithDuration:0.3 animations:^{
+            _toolbarBottom.frame = ^{
+                CGRect toolbarFrame = _toolbarBottom.frame;
+                toolbarFrame.origin.y = self.view.frame.size.height;
+                return toolbarFrame;
+            }();
+            if (!filterToolbarIsHidden) {
+                [_toolbarTop setAlpha:0];
+                _toolbarTop.frame = ^{
+                    CGRect frame = _toolbarTop.frame;
+                    frame.origin.y -= _toolbarTop.frame.size.height;
+                    return frame;
+                }();
+            }
+        } completion:^(BOOL finished) {
+            if (finished) {
+                if (!filterToolbarIsHidden) {
+                    [_toolbarTop setHidden:YES];
+                }
+            }
+        }];
+        
+    } else {
+        if (!_filtered) {
+            [_mapView addAnnotations:_mapAnnotations];
+        } else {
+            [_mapView addAnnotations:_filteredMapAnnotations];
+        }
+        _stationsShown = YES;
+        
+        [UIView animateWithDuration:0.3 animations:^{
+            _toolbarBottom.frame = ^{
+                CGRect toolbarFrame = _toolbarBottom.frame;
+                toolbarFrame.origin.y = self.view.frame.size.height - _toolbarBottom.frame.size.height;
+                return toolbarFrame;
+            }();
+        } completion:nil];
+    }
+    [[NSUserDefaults standardUserDefaults] setBool:_stationsShown forKey:@"stationsShown"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)showRemoveRoutes:(NSNotification *)notification
 {
     if (_routesShown) {
         [_mapView removeOverlays:_routesOverlays];
@@ -425,60 +484,33 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
         }
         _routesShown = YES;
     }
+    [[NSUserDefaults standardUserDefaults] setBool:_routesShown forKey:@"routesShown"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-- (IBAction)showRemoveStations:(id)sender
+- (void)showStationDetail:(UIButton *)sender
 {
-    if (_stationsShown) {
-        [_mapView removeAnnotations:_mapAnnotations];
-        _stationsShown = NO;
-        
-        CGRect toolbarFrame = _toolbar.frame;
-        toolbarFrame.origin.y = self.view.frame.size.height;
-        
-        [UIView animateWithDuration:0.3 animations:^{
-            _toolbar.frame = toolbarFrame;
-        } completion:^(BOOL finished) {
-            if (finished) {
-                
-            }
-        }];
-        
-    } else {
-        [_mapView addAnnotations:_mapAnnotations];
-        _stationsShown = YES;
-        
-        CGRect toolbarFrame = _toolbar.frame;
-        toolbarFrame.origin.y = self.view.frame.size.height - _toolbar.frame.size.height;
-        
-        [UIView animateWithDuration:0.3 animations:^{
-            _toolbar.frame = toolbarFrame;
-        } completion:^(BOOL finished) {
-            if (finished) {
-                
-            }
-        }];
-    }
-}
-
-- (IBAction)sliderChanged:(id)sender
-{
-    int sliderValue = (int)_slider.value;
-    if (sliderValue == 1) {
-        [_mapView removeAnnotations:_mapAnnotations];
-        [_mapView addAnnotations:_filteredMapAnnotations];
-    } else {
-        [_mapView removeAnnotations:_filteredMapAnnotations];
-        [_mapView addAnnotations:_mapAnnotations];
-    }
+    Station *station = [_stations objectAtIndex:sender.tag];
+    DetailViewController *detailViewController = [[DetailViewController alloc] init];
+    [detailViewController setStation:station];
+    [self.navigationController pushViewController:detailViewController animated:YES];
 }
 
 #pragma mark - Helpers
 
-- (void)updateMapViewAnnotations
+- (int)pinColorWithValue:(NSNumber *)value bikesRequired:(NSNumber *)bikesRequired
 {
-    [_mapView removeAnnotations:_mapView.annotations];
-    [_mapView addAnnotations:_mapAnnotations];
+    int availables = [value intValue];
+    int required = [bikesRequired doubleValue];
+    if (availables - required < 0) {
+        return 4;
+    } else if (availables - required < 5) {
+        return 3;
+    } else if (availables - required < 10) {
+        return 2;
+    } else {
+        return 1;
+    }
 }
 
 - (CGRect)rectFromMapLevel
@@ -519,22 +551,47 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
 - (NSString *)stringFromMapLevelAndPinColor:(int)pinColor;
 {
     NSString *mapLevelString;
-    
     switch (_currentMapZoomLevel) {
         case CRMapZoomLevelCity:
-            mapLevelString = @"city";
+            mapLevelString = @"City";
             break;
         case CRMapZoomLevelBorough:
-            mapLevelString = @"borough";
+            mapLevelString = @"Borough";
             break;
         case CRMapZoomLevelHood:
-            mapLevelString = @"hood";
+            mapLevelString = @"Hood";
             break;
         default:
             break;
     }
-    
-    return [NSString stringWithFormat:@"pins-%@-level%d", mapLevelString, pinColor];
+    return [NSString stringWithFormat:@"Pin %@ %d", mapLevelString, pinColor];
+}
+
+- (CGPoint)pointFromCalloutAnnotation
+{
+    CGPoint point = CGPointZero;
+    switch (_currentMapZoomLevel) {
+        case CRMapZoomLevelBorough:
+            point = CGPointMake(0, -50);
+            break;
+        case CRMapZoomLevelHood:
+            point = CGPointMake(0, -60);
+            break;
+        default:
+            break;
+    }
+    return point;
+}
+
+- (float)delayFromMapZoomLevel
+{
+    float delay = 0;
+    if (_currentMapZoomLevel == CRMapZoomLevelCity) {
+        delay = 0.008;
+    } else {
+        delay = 0.004;
+    }
+    return delay;
 }
 
 #pragma mark - MKMapViewDelegate
@@ -553,67 +610,125 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
         polylineRenderer.lineWidth = 2;
         return polylineRenderer;
     }
-    
     return nil;
 }
 
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
 {
-    if ([annotation isKindOfClass:[MKUserLocation class]])
-        return nil;
-    
-    static NSString *AnnotationViewID = @"annotationViewID";
-    
-    StationAnnotationView *annotationView = (StationAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:AnnotationViewID];
-    
-    if (!annotationView) {
-        annotationView = [[StationAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:AnnotationViewID];
+    if ([annotation isKindOfClass:[CalloutAnnotation class]]) {
         
-    } else {
-        annotationView.annotation = annotation;
+        CalloutAnnotation *calloutAnnotation = (CalloutAnnotation *)annotation;
+        
+        NSString *AnnotationViewID = @"calloutAnnotationViewID";
+        
+        MKAnnotationView *view = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:AnnotationViewID];
+        view.frame = CGRectMake(0, 0, 185, 85);
+        view.backgroundColor = [UIColor clearColor];
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        [button setFrame:view.bounds];
+        [button setBackgroundImage:[UIImage imageNamed:@"Callout"] forState:UIControlStateNormal];
+        [button setBackgroundImage:[UIImage imageNamed:@"Callout Selected"] forState:UIControlStateHighlighted];
+        [button setTag:calloutAnnotation.index];
+        [button addTarget:self action:@selector(showStationDetail:) forControlEvents:UIControlEventTouchUpInside];
+        [view addSubview:button];
+        
+        UILabel *bikesLabel = [[UILabel alloc] initWithFrame:CGRectMake(60, 8, 35, 25)];
+        [bikesLabel setText:[NSString stringWithFormat:@"%@", calloutAnnotation.bikes ? calloutAnnotation.bikes : @"-"]];
+        [bikesLabel setTextColor:[UIColor colorWithHex:0x404040]];
+        [bikesLabel setFont:[UIFont boldSystemFontOfSize:26.0f]];
+        [bikesLabel setMinimumScaleFactor:0.4];
+        [bikesLabel sizeToFit];
+        [button addSubview:bikesLabel];
+        
+        UILabel *freeLabel = [[UILabel alloc] initWithFrame:CGRectMake(140, 8, 35, 25)];
+        [freeLabel setText:[NSString stringWithFormat:@"%@", calloutAnnotation.free ? calloutAnnotation.free : @"-"]];
+        [freeLabel setTextColor:[UIColor colorWithHex:0x404040]];
+        [freeLabel setFont:[UIFont boldSystemFontOfSize:26.0f]];
+        [freeLabel setMinimumScaleFactor:0.4];
+        [freeLabel sizeToFit];
+        [button addSubview:freeLabel];
+        
+        UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 50, 165, 18)];
+        [nameLabel setText:[NSString stringWithFormat:@"%@", calloutAnnotation.title]];
+        [nameLabel setTextColor:[UIColor CR_firstColor]];
+        [nameLabel setFont:[UIFont systemFontOfSize:12.0f]];
+        [nameLabel setTextAlignment:NSTextAlignmentCenter];
+        [nameLabel setAdjustsFontSizeToFitWidth:YES];
+        [nameLabel setMinimumScaleFactor:0.4];
+        [button addSubview:nameLabel];
+        
+        view.canShowCallout = NO;
+        view.centerOffset = [self pointFromCalloutAnnotation];
+        
+        return view;
+        
+    } else if ([annotation isKindOfClass:[StationAnnotation class]]) {
+        
+        NSString *AnnotationViewID = @"stationAnnotationViewID";
+        
+        StationAnnotationView *annotationView = (StationAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:AnnotationViewID];
+        
+        if (!annotationView) {
+            annotationView = [[StationAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:AnnotationViewID];
+            
+        } else {
+            annotationView.annotation = annotation;
+        }
+        
+        StationAnnotation *stationAnnotation = (StationAnnotation *)annotation;
+        
+        NSNumber *bikesOrFree = stationAnnotation.bikes;
+        if (_displayMode == CRDisplayModeFree) {
+            bikesOrFree = stationAnnotation.free;
+        }
+        
+        int pinColor = [self pinColorWithValue:bikesOrFree bikesRequired:_itemsRequired];
+        
+        UIImage *image = [UIImage imageNamed:[self stringFromMapLevelAndPinColor:pinColor]];
+        annotationView.image = image;
+        annotationView.frame = [self rectFromMapLevel];
+        annotationView.contentMode = UIViewContentModeScaleAspectFill;
+        annotationView.canShowCallout = NO;
+        
+        return annotationView;
     }
-    
-    StationAnnotation *stationAnnotation = (StationAnnotation *)annotation;
-    
-    NSNumber *bikesOrFree = stationAnnotation.bikes;
-    if (_displayMode == CRDisplayModeFree) {
-        bikesOrFree = stationAnnotation.free;
-    }
-    
-    int pinColor = [self pinColorWithValue:bikesOrFree bikesRequired:_itemsRequired];
-    
-    UIImage *image = [UIImage imageNamed:[self stringFromMapLevelAndPinColor:pinColor]];
-    annotationView.image = image;
-    annotationView.frame = [self rectFromMapLevel];
-    annotationView.contentMode = UIViewContentModeScaleAspectFill;
-    annotationView.canShowCallout = NO;
-    
-    return annotationView;
+    return nil;
 }
 
 - (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view
 {
     if (_currentMapZoomLevel != CRMapZoomLevelCity) {
         
-        // Center the mapView
         StationAnnotation *stationAnnotation = view.annotation;
         
         [_mapView setCenterCoordinate:stationAnnotation.coordinate animated:YES];
         
-        _calloutView = [[CalloutView alloc] initWithFrame:[self calloutViewRectFromMapLevel]
-                                                    bikes:stationAnnotation.bikes
-                                                     free:stationAnnotation.free
-                                                     name:stationAnnotation.title];
+        if ([view.annotation isKindOfClass:[StationAnnotation class]]) {
+            StationAnnotation *stationAnnotation = view.annotation;
+            if (!stationAnnotation.calloutAnnotation) {
+                CalloutAnnotation *calloutAnnotation = [[CalloutAnnotation alloc] initWithCoordinate:stationAnnotation.coordinate title:stationAnnotation.title];
+                [calloutAnnotation setStationId:stationAnnotation.stationId];
+                [calloutAnnotation setBikes:stationAnnotation.bikes];
+                [calloutAnnotation setFree:stationAnnotation.free];
+                [calloutAnnotation setIndex:stationAnnotation.idx];
+                stationAnnotation.calloutAnnotation = calloutAnnotation;
+                [_mapView addAnnotation:calloutAnnotation];
+            }
+        }
         
-        [view addSubview:_calloutView];
     }
 }
 
 - (void)mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *)view
 {
     if (_currentMapZoomLevel != CRMapZoomLevelCity) {
-        [_calloutView removeFromSuperview];
-        _calloutView = nil;
+        if([view.annotation isKindOfClass:[StationAnnotation class]]) {
+            StationAnnotation *stationAnnotation = view.annotation;
+            if (stationAnnotation.calloutAnnotation) {
+                [mapView removeAnnotation:stationAnnotation.calloutAnnotation];
+                stationAnnotation.calloutAnnotation = nil;
+            }
+        }
     }
 }
 
@@ -621,35 +736,37 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
 {
     if (_stationsShown) {
         int zoomLevel = [_mapView zoomLevel];
-        
         if (zoomLevel >= 12 && zoomLevel <= 19) {
             if (zoomLevel == 12) {
-                
                 if (_currentMapZoomLevel != CRMapZoomLevelCity) {
                     _currentMapZoomLevel = CRMapZoomLevelCity;
-                    
                     _allowsAnimation = YES;
-                    [self updateMapViewAnnotations];
+                    if (_filtered) {
+                        [self updateFilteredMapViewAnnotationsAndFetchingRequired:NO];
+                    } else {
+                        [self updateMapViewAnnotations];
+                    }
                 }
-                
             } else if (zoomLevel >= 13 && zoomLevel <= 15) {
-                
                 if (_currentMapZoomLevel != CRMapZoomLevelBorough) {
                     _currentMapZoomLevel = CRMapZoomLevelBorough;
-                    
                     _allowsAnimation = YES;
-                    [self updateMapViewAnnotations];
+                    if (_filtered) {
+                        [self updateFilteredMapViewAnnotationsAndFetchingRequired:NO];
+                    } else {
+                        [self updateMapViewAnnotations];
+                    }
                 }
-                
             } else if (zoomLevel >= 16 && zoomLevel <= 19) {
-                
                 if (_currentMapZoomLevel != CRMapZoomLevelHood) {
                     _currentMapZoomLevel = CRMapZoomLevelHood;
-                    
                     _allowsAnimation = YES;
-                    [self updateMapViewAnnotations];
+                    if (_filtered) {
+                        [self updateFilteredMapViewAnnotationsAndFetchingRequired:NO];
+                    } else {
+                        [self updateMapViewAnnotations];
+                    }
                 }
-                
             }
         }
     }
@@ -659,20 +776,33 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
 {
     if (_allowsAnimation) {
         _allowsAnimation = NO;
-        for (MKAnnotationView *aV in views) {
-            if ([aV.annotation isKindOfClass:[MKUserLocation class]]) {
+        for (MKAnnotationView *annotationView in views) {
+            if ([annotationView.annotation isKindOfClass:[MKUserLocation class]]) {
                 continue;
             }
-            MKMapPoint point =  MKMapPointForCoordinate(aV.annotation.coordinate);
+            MKMapPoint point =  MKMapPointForCoordinate(annotationView.annotation.coordinate);
             if (!MKMapRectContainsPoint(mapView.visibleMapRect, point)) {
                 continue;
             }
-            aV.transform = CGAffineTransformMakeScale(0, 0);
-            [UIView animateWithDuration:0.2 delay:0.01 * [views indexOfObject:aV] options:UIViewAnimationOptionCurveLinear animations:^{
-                aV.transform = CGAffineTransformIdentity;
+            annotationView.transform = CGAffineTransformMakeScale(0, 0);
+            [UIView animateWithDuration:0.1 delay:[self delayFromMapZoomLevel] * [views indexOfObject:annotationView] options:UIViewAnimationOptionCurveLinear animations:^{
+                annotationView.transform = CGAffineTransformIdentity;
             } completion:nil];
         }
     }
+}
+
+#pragma mark - CLLocationManagerDelegate
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
+{
+    _currentUserLocation = [locations lastObject];
+}
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+{
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:[error localizedDescription] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+    [alertView show];
 }
 
 @end

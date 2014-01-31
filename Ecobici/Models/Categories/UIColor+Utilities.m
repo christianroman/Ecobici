@@ -12,17 +12,18 @@
 
 + (instancetype)CR_firstColor
 {
-    return [UIColor colorWithHex:0x50b948];
+    //return [UIColor colorWithHex:0x50b948];
+    return [UIColor colorWithHex:0x2ecc71];
 }
 
 + (instancetype)CR_secondColor
 {
-    return [UIColor colorWithHex:0x7f3e98];
+    return [UIColor colorWithHex:0x1C8B44];
 }
 
 + (instancetype)CR_thirdColor
 {
-    return [UIColor colorWithHex:0x9dd364];
+    return [UIColor colorWithHex:0x7f3e98];
 }
 
 + (instancetype)colorWithHex:(UInt32)hex
