@@ -51,11 +51,7 @@ typedef NS_ENUM(NSUInteger, MSMenuViewControllerTableViewSectionType) {
 @interface MSMenuViewController ()
 
 @property (nonatomic, strong) NSDictionary *paneViewControllerTitles;
-#if defined(STORYBOARD)
-@property (nonatomic, strong) NSDictionary *paneViewControllerIdentifiers;
-#else
 @property (nonatomic, strong) NSDictionary *paneViewControllerClasses;
-#endif
 @property (nonatomic, strong) NSDictionary *paneViewControllerAppearanceTypes;
 @property (nonatomic, strong) NSDictionary *sectionTitles;
 @property (nonatomic, strong) NSArray *tableViewSectionBreaks;
@@ -111,10 +107,10 @@ typedef NS_ENUM(NSUInteger, MSMenuViewControllerTableViewSectionType) {
     self.paneViewControllerType = NSUIntegerMax;
     self.paneViewControllerTitles = @{
         @(MSPaneViewControllerTypeStations) : @"Estaciones",
-        @(MSPaneViewControllerTypeRoutes) : @"Rutas",
+        @(MSPaneViewControllerTypeRoutes) : @"Ciclovías",
         @(MSPaneViewControllerTypeEmergency) : @"Emergencia",
         @(MSPaneViewControllerTypeFavorites) : @"Favoritos",
-        @(MSPaneViewControllerTypeTravels) : @"Mis viajes",
+        //@(MSPaneViewControllerTypeTravels) : @"Mis viajes",
         @(MSPaneViewControllerTypeFAQ) : @"FAQ",
         @(MSPaneViewControllerTypeAbout) : @"Acerca de"
     };
@@ -123,7 +119,7 @@ typedef NS_ENUM(NSUInteger, MSMenuViewControllerTableViewSectionType) {
         @(MSPaneViewControllerTypeRoutes) : [RoutesViewController class],
         @(MSPaneViewControllerTypeEmergency) : [EmergencyViewController class],
         @(MSPaneViewControllerTypeFavorites) : [FavoritesViewController class],
-        @(MSPaneViewControllerTypeTravels) : [TravelsViewController class],
+        //@(MSPaneViewControllerTypeTravels) : [TravelsViewController class],
         @(MSPaneViewControllerTypeFAQ) : [FAQViewController class],
         @(MSPaneViewControllerTypeAbout) : [AboutViewController class]
     };

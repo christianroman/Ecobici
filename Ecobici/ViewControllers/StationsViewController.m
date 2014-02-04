@@ -9,12 +9,14 @@
 #import "MapSettingsViewController.h"
 #import "StationsViewController.h"
 #import "StationAnnotationView.h"
+#import "CRClient+FileDownload.h"
 #import "DetailViewController.h"
 #import "MKMapView+ZoomLevel.h"
 #import "CalloutAnnotation.h"
 #import "CRClient+Stations.h"
 #import "StationAnnotation.h"
 #import "UIColor+Utilities.h"
+#import "GHWalkThroughView.h"
 #import "MRProgress.h"
 #import "Station.h"
 
@@ -31,7 +33,7 @@
 @import CoreLocation;
 @import CoreGraphics;
 
-@interface StationsViewController () <MKMapViewDelegate, CLLocationManagerDelegate>
+@interface StationsViewController () <MKMapViewDelegate, CLLocationManagerDelegate, GHWalkThroughViewDelegate, GHWalkThroughViewDataSource>
 
 typedef NS_ENUM(NSInteger, CRDisplayMode) {
     CRDisplayModeBikes = 0,
@@ -48,6 +50,7 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
 @property (nonatomic, assign) BOOL routesShown;
 @property (nonatomic, assign) BOOL stationsShown;
 @property (nonatomic, assign) BOOL allowsAnimation;
+@property (nonatomic, assign) BOOL firstTimeLaunched;
 @property (nonatomic, strong) NSArray *filterValues;
 @property (nonatomic, strong) NSNumber *itemsRequired;
 @property (nonatomic, assign) CRDisplayMode displayMode;
@@ -65,6 +68,11 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
 @property (nonatomic, weak) IBOutlet UIToolbar *toolbarBottom;
 @property (nonatomic, weak) IBOutlet UIStepper *itemsRequiredStepper;
 @property (nonatomic, weak) IBOutlet UIBarButtonItem *itemsRequiredItem;
+
+@property (nonatomic, strong) NSArray *walkthroughViewDescriptions;
+@property (nonatomic, strong) GHWalkThroughView *walkthroughView;
+@property (nonatomic, strong) NSArray *walkthroughViewTitles;
+@property (nonatomic, strong) UILabel *walkthroughLabel;
 
 @end
 
@@ -85,7 +93,7 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
 {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:_firstTimeLaunched ? UIStatusBarStyleLightContent : UIStatusBarStyleDefault];
 }
 
 - (void)viewDidLoad
@@ -94,7 +102,11 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
     [self configureDynamicDrawerViewController];
     [self configureUI];
     [self configureMapView];
-    [self fetchStations];
+    if (!_firstTimeLaunched) {
+        [self fetchStations];
+    } else {
+        [self configureWalkTroughView];
+    }
 }
 
 - (void)dealloc
@@ -106,6 +118,14 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
 
 - (void)setUp
 {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"]) {
+        _firstTimeLaunched = NO;
+    } else {
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasLaunchedOnce"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        _firstTimeLaunched = YES;
+    }
+    
     _currentUserLocation = [[CLLocation alloc] init];
     _locationManager = [[CLLocationManager alloc] init];
     _locationManager.delegate = self;
@@ -153,9 +173,10 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
                                                                                        target:self
                                                                                        action:@selector(refreshStations)];
     
-    UIBarButtonItem *filterButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch
-                                                                                      target:self
-                                                                                      action:@selector(showHideActionToolbar)];
+    UIBarButtonItem *filterButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Settings"]
+                                                                         style:UIBarButtonItemStyleBordered
+                                                                        target:self
+                                                                        action:@selector(showHideActionToolbar)];
     
     [self.navigationItem setRightBarButtonItems:@[paneRevealRightBarButtonItem, filterButtonItem, refreshButtonItem]];
     
@@ -164,15 +185,46 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
                          barMetrics:UIBarMetricsDefault];
 }
 
+- (void)configureWalkTroughView
+{
+    NSString *title1 = @"La única app que necesitas";
+    NSString *title2 = @"¡No mas decepciones!";
+    NSString *title3 = @"Disponibilidad inteligente";
+    NSString *title4 = @"Ciclovías y rutas seguras";
+    NSString *title5 = @"Disfruta";
+    
+    NSString *description1 = @"Encuentra la estación de Ecobici mas cercana y confiable a partir de su disponibilidad. Viaja seguro y usa las principales ciclovías de la ciudad.";
+    
+    NSString *description2 = @"Encuentra la estación perfecta de acuerdo a lo que necesites en el momento. Incluida la cantidad de bicis o lugares que necesites.";
+    
+    NSString *description3 = @"Recomendaciones en tiempo real, filtra y encuentra las estaciones que mas bicicletas o espacios tengan.";
+    
+    NSString *description4 = @"Ya no te arriesgues, utiliza las principales ciclovías y rutas seguras. disfruta de la ciudad.";
+    
+    NSString *description5 = @"Nada es comparable al sencillo placer de dar un paseo en bicicleta...";
+    
+    _walkthroughView = [[GHWalkThroughView alloc] initWithFrame:self.navigationController.view.bounds];
+    [_walkthroughView setDataSource:self];
+    [_walkthroughView setDelegate:self];
+    [_walkthroughView setWalkThroughDirection:GHWalkThroughViewDirectionHorizontal];
+    [_walkthroughView setCloseTitle:@"Saltar"];
+    _walkthroughLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 50)];
+    _walkthroughLabel.text = @"Bienvenido";
+    _walkthroughLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:40];
+    _walkthroughLabel.textColor = [UIColor whiteColor];
+    _walkthroughLabel.textAlignment = NSTextAlignmentCenter;
+    [_walkthroughView setFloatingHeaderView:_walkthroughLabel];
+    [_walkthroughView showInView:self.navigationController.view animateDuration:0.3];
+    
+    _walkthroughViewTitles = @[title1, title2, title3, title4, title5];
+    _walkthroughViewDescriptions = @[description1, description2, description3, description4, description5];
+}
+
 - (void)configureDynamicDrawerViewController
 {
-    _dynamicsDrawerViewController = (MSDynamicsDrawerViewController *)self.navigationController.parentViewController;
-    MapSettingsViewController *mapSettingsViewController = [MapSettingsViewController new];
-    [_dynamicsDrawerViewController addStylersFromArray:@[[MSDynamicsDrawerParallaxStyler styler],
-                                                         [MSDynamicsDrawerShadowStyler styler]]
-                                          forDirection:MSDynamicsDrawerDirectionRight];
-    [_dynamicsDrawerViewController setPaneDragRevealEnabled:NO forDirection:MSDynamicsDrawerDirectionRight];
-    [_dynamicsDrawerViewController setDrawerViewController:mapSettingsViewController forDirection:MSDynamicsDrawerDirectionRight];
+    if (!_dynamicsDrawerViewController) {
+        _dynamicsDrawerViewController = (MSDynamicsDrawerViewController *)self.navigationController.parentViewController;
+    }
 }
 
 - (void)fetchStations
@@ -367,14 +419,41 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
     }];
 }
 
-- (void)loadRoutes
+- (void)downloadRoutesFile
+{
+    NSURL *URL = [NSURL URLWithString:@"http://chroman.me/ciclovias.json"];
+    [[CRClient sharedClient] downloadFileFromURL:URL completion:^(NSURL *localURL, NSError *error) {
+        
+        NSData *JSONData = nil;
+        if (!error) {
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            NSURL *newURL = [NSURL URLWithString:@"ciclovias_cloud.json" relativeToURL:[localURL URLByDeletingLastPathComponent]];
+            if ([fileManager fileExistsAtPath:[newURL path] isDirectory:NULL]) {
+                [fileManager removeItemAtURL:newURL error:NULL];
+                [fileManager moveItemAtURL:localURL toURL:newURL error:NULL];
+                [fileManager removeItemAtURL:localURL error:NULL];
+            } else {
+                [fileManager moveItemAtURL:localURL toURL:newURL error:NULL];
+            }
+            JSONData = [NSData dataWithContentsOfURL:newURL];
+        } else {
+            NSString *filePath = [[NSBundle mainBundle] pathForResource:@"ciclovias" ofType:@"json"];
+            JSONData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:nil];
+        }
+        id JSONObject = [NSJSONSerialization JSONObjectWithData:JSONData options:0 error:nil];
+        [self loadRoutesFromJSON:JSONObject];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_mapView addOverlays:_routesOverlays];
+            _routesShown = YES;
+        });
+        
+    }];
+}
+
+- (void)loadRoutesFromJSON:(id)JSONObject
 {
     _routesOverlays = [[NSMutableArray alloc] init];
-    
-    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"ciclovias" ofType:@"json"];
-    NSError *error = nil;
-    NSData *JSONData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:&error];
-    id JSONObject = [NSJSONSerialization JSONObjectWithData:JSONData options:0 error:&error];
     
     NSArray *features = [JSONObject objectForKey:@"features"];
     
@@ -390,9 +469,6 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
         free(coordinateArray);
         [_routesOverlays addObject:polyline];
     }
-    
-    [_mapView addOverlays:_routesOverlays];
-    _routesShown = YES;
 }
 
 - (void)showHideActionToolbar
@@ -478,7 +554,7 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
         _routesShown = NO;
     } else {
         if (!_routesOverlays) {
-            [self loadRoutes];
+            [self downloadRoutesFile];
         } else {
             [_mapView addOverlays:_routesOverlays];
         }
@@ -594,6 +670,35 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
     return delay;
 }
 
+#pragma mark - GHDataSource
+
+- (NSInteger)numberOfPages
+{
+    return 5;
+}
+
+- (void)configurePage:(GHWalkThroughPageCell *)cell atIndex:(NSInteger)index
+{
+    cell.title = [_walkthroughViewTitles objectAtIndex:index];
+    cell.titleImage = [UIImage imageNamed:[NSString stringWithFormat:@"Title %d", index + 1]];
+    cell.desc = [_walkthroughViewDescriptions objectAtIndex:index];
+}
+
+- (UIImage *)bgImageforPage:(NSInteger)index
+{
+    NSString *imageName =[NSString stringWithFormat:@"Walkthrough %d.jpg", index + 1];
+    UIImage *image = [UIImage imageNamed:imageName];
+    return image;
+}
+
+#pragma mark - GHDelegate
+
+- (void)walkthroughDidDismissView:(GHWalkThroughView *)walkthroughView
+{
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+    [self fetchStations];
+}
+
 #pragma mark - MKMapViewDelegate
 
 - (MKOverlayRenderer *)mapView:(MKMapView *)mapView rendererForOverlay:(id<MKOverlay>)overlay
@@ -606,7 +711,7 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
         return polygonRenderer;
     } else if ([overlay isKindOfClass:[MKPolyline class]]) {
         MKPolylineRenderer *polylineRenderer = [[MKPolylineRenderer alloc] initWithOverlay:overlay];
-        polylineRenderer.strokeColor = [UIColor CR_secondColor];
+        polylineRenderer.strokeColor = [UIColor CR_thirdColor];
         polylineRenderer.lineWidth = 2;
         return polylineRenderer;
     }
@@ -797,12 +902,6 @@ typedef NS_ENUM(NSInteger, CRMapZoomLevel) {
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     _currentUserLocation = [locations lastObject];
-}
-
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
-{
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:[error localizedDescription] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-    [alertView show];
 }
 
 @end

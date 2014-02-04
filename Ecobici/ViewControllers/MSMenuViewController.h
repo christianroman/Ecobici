@@ -31,7 +31,7 @@ typedef NS_ENUM(NSUInteger, MSPaneViewControllerType) {
     MSPaneViewControllerTypeRoutes,
     MSPaneViewControllerTypeEmergency,
     MSPaneViewControllerTypeFavorites,
-    MSPaneViewControllerTypeTravels,
+    //MSPaneViewControllerTypeTravels,
     MSPaneViewControllerTypeFAQ,
     MSPaneViewControllerTypeAbout,
     MSPaneViewControllerTypeCount

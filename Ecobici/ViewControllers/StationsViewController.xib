@@ -64,7 +64,7 @@
                     <items>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="QL0-45-soR"/>
                         <barButtonItem style="plain" id="pMY-jz-JOq">
-                            <slider key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="4" minValue="1" maxValue="4" id="Vlc-cs-OIz">
+                            <slider key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="4" minValue="1" maxValue="4" continuous="NO" id="Vlc-cs-OIz">
                                 <rect key="frame" x="25" y="5" width="270" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="minimumTrackTintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>

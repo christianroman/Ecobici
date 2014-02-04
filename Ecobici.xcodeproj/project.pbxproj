@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		222F536D189DA48600AE97E1 /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 222F536A189DA48600AE97E1 /* NJKWebViewProgress.m */; };
+		222F536E189DA48600AE97E1 /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 222F536C189DA48600AE97E1 /* NJKWebViewProgressView.m */; };
 		2235211C189435BD0060BE76 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2235210A189435BD0060BE76 /* AFHTTPRequestOperation.m */; };
 		2235211D189435BD0060BE76 /* AFHTTPRequestOperationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2235210C189435BD0060BE76 /* AFHTTPRequestOperationManager.m */; };
 		2235211E189435BD0060BE76 /* AFHTTPSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2235210E189435BD0060BE76 /* AFHTTPSessionManager.m */; };
@@ -30,12 +32,8 @@
 		223521621894368F0060BE76 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 223521611894368F0060BE76 /* MapKit.framework */; };
 		223521641894369C0060BE76 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 223521631894369C0060BE76 /* CoreLocation.framework */; };
 		22352166189436B70060BE76 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22352165189436B70060BE76 /* QuartzCore.framework */; };
-		2235216A189436F40060BE76 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 22352168189436F40060BE76 /* MainViewController.m */; };
-		2235216B189436F40060BE76 /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 22352169189436F40060BE76 /* MainViewController.xib */; };
 		2235216F189438080060BE76 /* StationsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2235216D189438080060BE76 /* StationsViewController.m */; };
 		22352170189438080060BE76 /* StationsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2235216E189438080060BE76 /* StationsViewController.xib */; };
-		224EBED3189976140084C00B /* RoutesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 224EBED1189976140084C00B /* RoutesViewController.m */; };
-		224EBED4189976140084C00B /* RoutesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 224EBED2189976140084C00B /* RoutesViewController.xib */; };
 		224EBEDC189976290084C00B /* EmergencyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 224EBEDA189976290084C00B /* EmergencyViewController.m */; };
 		224EBEDD189976290084C00B /* EmergencyViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 224EBEDB189976290084C00B /* EmergencyViewController.xib */; };
 		224EBEE01899763D0084C00B /* TravelsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 224EBEDF1899763D0084C00B /* TravelsViewController.m */; };
@@ -96,6 +94,13 @@
 		22AB82861898CE5900BF49D3 /* MapSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 22AB82841898CE5900BF49D3 /* MapSettingsViewController.m */; };
 		22AB82871898CE5900BF49D3 /* MapSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 22AB82851898CE5900BF49D3 /* MapSettingsViewController.xib */; };
 		22AB828D1898CFFE00BF49D3 /* FavoritesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 22AB828C1898CFFE00BF49D3 /* FavoritesViewController.m */; };
+		22ED78FE189C34E5009F0BDC /* RoutesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 22ED78FD189C34E5009F0BDC /* RoutesViewController.m */; };
+		22ED7907189C36E2009F0BDC /* RouteDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 22ED7905189C36E2009F0BDC /* RouteDetailViewController.m */; };
+		22ED7908189C36E2009F0BDC /* RouteDetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 22ED7906189C36E2009F0BDC /* RouteDetailViewController.xib */; };
+		22ED790B189C3A39009F0BDC /* Route.m in Sources */ = {isa = PBXBuildFile; fileRef = 22ED790A189C3A39009F0BDC /* Route.m */; };
+		22ED790E189C5EE7009F0BDC /* CRClient+FileDownload.m in Sources */ = {isa = PBXBuildFile; fileRef = 22ED790D189C5EE7009F0BDC /* CRClient+FileDownload.m */; };
+		22ED7935189C7CEF009F0BDC /* GHWalkThroughPageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 22ED7920189C7CEF009F0BDC /* GHWalkThroughPageCell.m */; };
+		22ED7936189C7CEF009F0BDC /* GHWalkThroughView.m in Sources */ = {isa = PBXBuildFile; fileRef = 22ED7922189C7CEF009F0BDC /* GHWalkThroughView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -151,6 +156,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		222F5369189DA48600AE97E1 /* NJKWebViewProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJKWebViewProgress.h; sourceTree = "<group>"; };
+		222F536A189DA48600AE97E1 /* NJKWebViewProgress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJKWebViewProgress.m; sourceTree = "<group>"; };
+		222F536B189DA48600AE97E1 /* NJKWebViewProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJKWebViewProgressView.h; sourceTree = "<group>"; };
+		222F536C189DA48600AE97E1 /* NJKWebViewProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJKWebViewProgressView.m; sourceTree = "<group>"; };
 		22352109189435BD0060BE76 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
 		2235210A189435BD0060BE76 /* AFHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPRequestOperation.m; sourceTree = "<group>"; };
 		2235210B189435BD0060BE76 /* AFHTTPRequestOperationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperationManager.h; sourceTree = "<group>"; };
@@ -197,15 +206,9 @@
 		223521611894368F0060BE76 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		223521631894369C0060BE76 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		22352165189436B70060BE76 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		22352167189436F40060BE76 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
-		22352168189436F40060BE76 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
-		22352169189436F40060BE76 /* MainViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainViewController.xib; sourceTree = "<group>"; };
 		2235216C189438080060BE76 /* StationsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StationsViewController.h; sourceTree = "<group>"; };
 		2235216D189438080060BE76 /* StationsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StationsViewController.m; sourceTree = "<group>"; };
 		2235216E189438080060BE76 /* StationsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = StationsViewController.xib; sourceTree = "<group>"; };
-		224EBED0189976140084C00B /* RoutesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoutesViewController.h; sourceTree = "<group>"; };
-		224EBED1189976140084C00B /* RoutesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoutesViewController.m; sourceTree = "<group>"; };
-		224EBED2189976140084C00B /* RoutesViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RoutesViewController.xib; sourceTree = "<group>"; };
 		224EBED9189976290084C00B /* EmergencyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmergencyViewController.h; sourceTree = "<group>"; };
 		224EBEDA189976290084C00B /* EmergencyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmergencyViewController.m; sourceTree = "<group>"; };
 		224EBEDB189976290084C00B /* EmergencyViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = EmergencyViewController.xib; sourceTree = "<group>"; };
@@ -319,6 +322,19 @@
 		22AB82851898CE5900BF49D3 /* MapSettingsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MapSettingsViewController.xib; sourceTree = "<group>"; };
 		22AB828B1898CFFE00BF49D3 /* FavoritesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FavoritesViewController.h; sourceTree = "<group>"; };
 		22AB828C1898CFFE00BF49D3 /* FavoritesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FavoritesViewController.m; sourceTree = "<group>"; };
+		22ED78FC189C34E5009F0BDC /* RoutesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoutesViewController.h; sourceTree = "<group>"; };
+		22ED78FD189C34E5009F0BDC /* RoutesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoutesViewController.m; sourceTree = "<group>"; };
+		22ED7904189C36E2009F0BDC /* RouteDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteDetailViewController.h; sourceTree = "<group>"; };
+		22ED7905189C36E2009F0BDC /* RouteDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RouteDetailViewController.m; sourceTree = "<group>"; };
+		22ED7906189C36E2009F0BDC /* RouteDetailViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RouteDetailViewController.xib; sourceTree = "<group>"; };
+		22ED7909189C3A39009F0BDC /* Route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Route.h; sourceTree = "<group>"; };
+		22ED790A189C3A39009F0BDC /* Route.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Route.m; sourceTree = "<group>"; };
+		22ED790C189C5EE7009F0BDC /* CRClient+FileDownload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CRClient+FileDownload.h"; sourceTree = "<group>"; };
+		22ED790D189C5EE7009F0BDC /* CRClient+FileDownload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CRClient+FileDownload.m"; sourceTree = "<group>"; };
+		22ED791F189C7CEF009F0BDC /* GHWalkThroughPageCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHWalkThroughPageCell.h; sourceTree = "<group>"; };
+		22ED7920189C7CEF009F0BDC /* GHWalkThroughPageCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHWalkThroughPageCell.m; sourceTree = "<group>"; };
+		22ED7921189C7CEF009F0BDC /* GHWalkThroughView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHWalkThroughView.h; sourceTree = "<group>"; };
+		22ED7922189C7CEF009F0BDC /* GHWalkThroughView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHWalkThroughView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -351,6 +367,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		222F5368189DA48600AE97E1 /* NJKWebViewProgress */ = {
+			isa = PBXGroup;
+			children = (
+				222F5369189DA48600AE97E1 /* NJKWebViewProgress.h */,
+				222F536A189DA48600AE97E1 /* NJKWebViewProgress.m */,
+				222F536B189DA48600AE97E1 /* NJKWebViewProgressView.h */,
+				222F536C189DA48600AE97E1 /* NJKWebViewProgressView.m */,
+			);
+			name = NJKWebViewProgress;
+			path = NJKWebViewProgress/NJKWebViewProgress;
+			sourceTree = "<group>";
+		};
 		22352108189435BD0060BE76 /* AFNetworking */ = {
 			isa = PBXGroup;
 			children = (
@@ -539,6 +567,8 @@
 		226D5F7B189432540062D9E1 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				222F5368189DA48600AE97E1 /* NJKWebViewProgress */,
+				22ED790F189C7CEF009F0BDC /* GHWalkThrough */,
 				228299E0189AC393003758A2 /* extobjc */,
 				224EBEEB189977620084C00B /* PSLocationManager */,
 				22AB82701898CB8200BF49D3 /* MSDynamicsDrawerViewController */,
@@ -577,6 +607,8 @@
 				226D5FA3189432F30062D9E1 /* StationAnnotation.m */,
 				22AB81641897425700BF49D3 /* CalloutAnnotation.h */,
 				22AB81651897425700BF49D3 /* CalloutAnnotation.m */,
+				22ED7909189C3A39009F0BDC /* Route.h */,
+				22ED790A189C3A39009F0BDC /* Route.m */,
 				226D5F7F189432680062D9E1 /* Categories */,
 			);
 			path = Models;
@@ -606,6 +638,8 @@
 				226D5FAA1894335C0062D9E1 /* CRClient+Stations.h */,
 				226D5FAB1894335C0062D9E1 /* CRClient+Stations.m */,
 				226D5FAC1894335C0062D9E1 /* CRCompletionBlocks.h */,
+				22ED790C189C5EE7009F0BDC /* CRClient+FileDownload.h */,
+				22ED790D189C5EE7009F0BDC /* CRClient+FileDownload.m */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -634,12 +668,6 @@
 			children = (
 				22AB82801898CD2E00BF49D3 /* MSMenuViewController.h */,
 				22AB82811898CD2E00BF49D3 /* MSMenuViewController.m */,
-				224EBED0189976140084C00B /* RoutesViewController.h */,
-				224EBED1189976140084C00B /* RoutesViewController.m */,
-				224EBED2189976140084C00B /* RoutesViewController.xib */,
-				22352167189436F40060BE76 /* MainViewController.h */,
-				22352168189436F40060BE76 /* MainViewController.m */,
-				22352169189436F40060BE76 /* MainViewController.xib */,
 				2235216C189438080060BE76 /* StationsViewController.h */,
 				2235216D189438080060BE76 /* StationsViewController.m */,
 				2235216E189438080060BE76 /* StationsViewController.xib */,
@@ -661,6 +689,11 @@
 				224EBEE31899764F0084C00B /* FAQViewController.xib */,
 				224EBF0618998F900084C00B /* AboutViewController.h */,
 				224EBF0718998F900084C00B /* AboutViewController.m */,
+				22ED78FC189C34E5009F0BDC /* RoutesViewController.h */,
+				22ED78FD189C34E5009F0BDC /* RoutesViewController.m */,
+				22ED7904189C36E2009F0BDC /* RouteDetailViewController.h */,
+				22ED7905189C36E2009F0BDC /* RouteDetailViewController.m */,
+				22ED7906189C36E2009F0BDC /* RouteDetailViewController.xib */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -740,6 +773,18 @@
 			path = MSDynamicsDrawerViewController/MSDynamicsDrawerViewController;
 			sourceTree = "<group>";
 		};
+		22ED790F189C7CEF009F0BDC /* GHWalkThrough */ = {
+			isa = PBXGroup;
+			children = (
+				22ED791F189C7CEF009F0BDC /* GHWalkThroughPageCell.h */,
+				22ED7920189C7CEF009F0BDC /* GHWalkThroughPageCell.m */,
+				22ED7921189C7CEF009F0BDC /* GHWalkThroughView.h */,
+				22ED7922189C7CEF009F0BDC /* GHWalkThroughView.m */,
+			);
+			name = GHWalkThrough;
+			path = GHWalkThrough/GHWalkThrough;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -800,6 +845,7 @@
 			knownRegions = (
 				en,
 				es,
+				Base,
 			);
 			mainGroup = 226D5F3A189431D60062D9E1;
 			productRefGroup = 226D5F44189431D60062D9E1 /* Products */;
@@ -863,11 +909,10 @@
 			files = (
 				22AB82791898CB8200BF49D3 /* MSDynamicsDrawerViewController.m; in Resources */,
 				226D5F53189431D60062D9E1 /* InfoPlist.strings in Resources */,
-				2235216B189436F40060BE76 /* MainViewController.xib in Resources */,
 				22AB81761898163A00BF49D3 /* DetailViewController.xib in Resources */,
 				22AB82871898CE5900BF49D3 /* MapSettingsViewController.xib in Resources */,
-				224EBED4189976140084C00B /* RoutesViewController.xib in Resources */,
 				226D5F5E189431D60062D9E1 /* Images.xcassets in Resources */,
+				22ED7908189C36E2009F0BDC /* RouteDetailViewController.xib in Resources */,
 				224EBEE51899764F0084C00B /* FAQViewController.xib in Resources */,
 				22352170189438080060BE76 /* StationsViewController.xib in Resources */,
 				224EBEDD189976290084C00B /* EmergencyViewController.xib in Resources */,
@@ -895,15 +940,18 @@
 				22829A01189AC393003758A2 /* NSMethodSignature+EXT.m in Sources */,
 				228299FF189AC393003758A2 /* EXTSelectorChecking.m in Sources */,
 				226D5FAD1894335C0062D9E1 /* CRClient.m in Sources */,
+				22ED790E189C5EE7009F0BDC /* CRClient+FileDownload.m in Sources */,
 				226D5FBE189433720062D9E1 /* StationAnnotationView.m in Sources */,
+				222F536E189DA48600AE97E1 /* NJKWebViewProgressView.m in Sources */,
 				228299FC189AC393003758A2 /* EXTRuntimeExtensions.m in Sources */,
 				224EBF01189977620084C00B /* PSLocationManager.m in Sources */,
-				2235216A189436F40060BE76 /* MainViewController.m in Sources */,
+				22ED7907189C36E2009F0BDC /* RouteDetailViewController.m in Sources */,
 				224EBEE01899763D0084C00B /* TravelsViewController.m in Sources */,
 				226D5FB5189433680062D9E1 /* WilcardGestureRecognizer.m in Sources */,
 				22352158189435D50060BE76 /* MRIconView.m in Sources */,
 				228299FB189AC393003758A2 /* EXTNil.m in Sources */,
 				22352121189435BD0060BE76 /* AFURLConnectionOperation.m in Sources */,
+				22ED790B189C3A39009F0BDC /* Route.m in Sources */,
 				22AB827E1898CC9A00BF49D3 /* MSMenuCell.m in Sources */,
 				2235215C189435D50060BE76 /* MRMessageInterceptor.m in Sources */,
 				22352154189435D50060BE76 /* MRBlurView.m in Sources */,
@@ -912,9 +960,9 @@
 				22AB82781898CB8200BF49D3 /* MSDynamicsDrawerViewController.m in Sources */,
 				226D5FA5189432F30062D9E1 /* StationAnnotation.m in Sources */,
 				224EBEDC189976290084C00B /* EmergencyViewController.m in Sources */,
+				222F536D189DA48600AE97E1 /* NJKWebViewProgress.m in Sources */,
 				2235211E189435BD0060BE76 /* AFHTTPSessionManager.m in Sources */,
 				224EBF0818998F900084C00B /* AboutViewController.m in Sources */,
-				224EBED3189976140084C00B /* RoutesViewController.m in Sources */,
 				228299F9189AC393003758A2 /* EXTADT.m in Sources */,
 				226D5F9A189432CC0062D9E1 /* MKMapView+ZoomLevel.m in Sources */,
 				226D5F9E189432CC0062D9E1 /* UIDevice+System.m in Sources */,
@@ -941,9 +989,11 @@
 				22352157189435D50060BE76 /* MRCircularProgressView.m in Sources */,
 				22AB82861898CE5900BF49D3 /* MapSettingsViewController.m in Sources */,
 				22352122189435BD0060BE76 /* AFURLRequestSerialization.m in Sources */,
+				22ED78FE189C34E5009F0BDC /* RoutesViewController.m in Sources */,
 				22352155189435D50060BE76 /* UIImage+MRImageEffects.m in Sources */,
 				22AB828D1898CFFE00BF49D3 /* FavoritesViewController.m in Sources */,
 				226D5FAF1894335C0062D9E1 /* CRClient+Stations.m in Sources */,
+				22ED7935189C7CEF009F0BDC /* GHWalkThroughPageCell.m in Sources */,
 				22829A00189AC393003758A2 /* NSInvocation+EXT.m in Sources */,
 				22AB82771898CB8200BF49D3 /* MSDynamicsDrawerStyler.m in Sources */,
 				22AB81661897425700BF49D3 /* CalloutAnnotation.m in Sources */,
@@ -952,6 +1002,7 @@
 				226D5F9B189432CC0062D9E1 /* UIColor+Utilities.m in Sources */,
 				22AB827F1898CC9A00BF49D3 /* MSMenuTableViewHeader.m in Sources */,
 				226D5F88189432800062D9E1 /* AppDelegate.m in Sources */,
+				22ED7936189C7CEF009F0BDC /* GHWalkThroughView.m in Sources */,
 				226D5F9F189432CC0062D9E1 /* UIImage+TintColor.m in Sources */,
 				226D5FB4189433680062D9E1 /* ObjectBuilder.m in Sources */,
 			);

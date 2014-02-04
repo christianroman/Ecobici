@@ -15,6 +15,7 @@
 #import "CRCoreDataController.h"
 #import "AppDelegate.h"
 #import "EXTScope.h"
+#import "CRClient+Stations.h"
 
 @import MapKit;
 @import CoreLocation;
@@ -67,20 +68,6 @@
     return self;
 }
 
-- (BOOL)stationSavedInFavorites
-{
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[Station managedObjectEntityName]];
-    [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"sid == %d", [_station.sid intValue]]];
-    [fetchRequest setFetchLimit:1];
-    
-    NSError *error = nil;
-    if ([_managedObjectContext countForFetchRequest:fetchRequest error:&error]) {
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -124,6 +111,24 @@
         
     }];
     
+    if ([_station.bikes intValue] == 0 && [_station.free intValue] == 0) {
+        [_bikesLabel setText:@"-"];
+        [_freeLabel setText:@"-"];
+        [[CRClient sharedClient] getStationsWithCompletion:^(NSArray *stations, NSError *error) {
+            if (!error){
+                NSArray *fetchedStations = [stations filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+                    Station *station = (Station *)evaluatedObject;
+                    return [station.sid intValue] == [_station.sid intValue];
+                }]];
+                if (fetchedStations && [fetchedStations count]) {
+                    Station *fetchStation = [fetchedStations objectAtIndex:0];
+                    [_bikesLabel setText:[NSString stringWithFormat:@"%@", fetchStation.bikes]];
+                    [_freeLabel setText:[NSString stringWithFormat:@"%@", fetchStation.free]];
+                }
+            }
+        }];
+    }
+    
     _tapInterceptor = [[WildcardGestureRecognizer alloc] init];
     __weak WildcardGestureRecognizer *tapInterceptor = _tapInterceptor;
     @weakify(self)
@@ -137,6 +142,20 @@
 }
 
 #pragma mark - Class methods
+
+- (BOOL)stationSavedInFavorites
+{
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[Station managedObjectEntityName]];
+    [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"sid == %d", [_station.sid intValue]]];
+    [fetchRequest setFetchLimit:1];
+    
+    NSError *error = nil;
+    if ([_managedObjectContext countForFetchRequest:fetchRequest error:&error]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
 
 - (void)calculateDirectionsToStation
 {
@@ -413,7 +432,6 @@ MKMapRect MKMapRectForCoordinateRegion(MKCoordinateRegion region)
             NSArray* items = [[NSArray alloc] initWithObjects: destination, nil];
             NSDictionary* options = [[NSDictionary alloc] initWithObjectsAndKeys:
                                      MKLaunchOptionsDirectionsModeDriving,
-                                     MKLaunchOptionsDirectionsModeWalking,
                                      MKLaunchOptionsDirectionsModeKey, nil];
             [MKMapItem openMapsWithItems: items launchOptions: options];
             break;

@@ -123,7 +123,7 @@
                 break;
             }
             case 2: {
-                NSString *stringShare = @"Estoy usando @ecobiciplus para planear mis viajes de #Ecobici, pruebalo. http://ow.ly/hMiBa";
+                NSString *stringShare = @"Estoy usando @ecobiciplus para planear mis viajes de #Ecobici, pruebalo. http://bit.ly/1aQRxYN";
                 UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:@[stringShare] applicationActivities:nil];
                 [self presentViewController:activityController animated:YES completion:nil];
                 break;
@@ -135,7 +135,7 @@
         switch ([indexPath row]) {
             case 0: {
                 [[UIApplication sharedApplication]
-                 openURL:[NSURL URLWithString:@"itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=592821826"]];
+                 openURL:[NSURL URLWithString:@"itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=811633616"]];
                 break;
             }
             case 1: {
@@ -154,11 +154,6 @@
             }
         }
     }
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return 60.0f;
 }
  
 @end

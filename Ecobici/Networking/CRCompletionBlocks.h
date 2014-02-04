@@ -15,3 +15,5 @@ typedef void (^CRBooleanCompletionBlock)(BOOL result, NSError *error);
 typedef void (^CRObjectCompletionBlock)(id object, NSError *error);
 
 typedef void (^CRArrayCompletionBlock)(NSArray *collection, NSError *error);
+
+typedef void (^CRDownloadCompletionBlock)(NSURL *localURL, NSError *error);

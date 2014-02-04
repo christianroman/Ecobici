@@ -8,6 +8,8 @@
 
 #import "EmergencyViewController.h"
 
+#define kPhoneNumber @"50052424"
+
 @interface EmergencyViewController ()
 
 @end
@@ -29,10 +31,10 @@
     // Do any additional setup after loading the view from its nib.
 }
 
-- (void)didReceiveMemoryWarning
+- (IBAction)tapEmergencyButton:(UIButton *)sender
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    NSString *url = [NSString stringWithFormat:@"%@%@", @"tel://%@", kPhoneNumber];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
 }
 
 @end

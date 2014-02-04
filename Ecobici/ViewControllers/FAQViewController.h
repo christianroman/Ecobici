@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NJKWebViewProgress.h"
 
-@interface FAQViewController : UIViewController
+@interface FAQViewController : UIViewController <UIWebViewDelegate, NJKWebViewProgressDelegate>
 
 @end

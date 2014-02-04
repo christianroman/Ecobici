@@ -43,12 +43,6 @@
     [_routesSwitch setOn:[[NSUserDefaults standardUserDefaults] boolForKey:@"routesShown"]];
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 #pragma mark - Class methods
 
 - (IBAction)showHideStations:(id)sender

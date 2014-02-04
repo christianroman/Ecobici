@@ -16,3 +16,9 @@
 [submodule "Libraries/libextobjc"]
 	path = Libraries/libextobjc
 	url = https://github.com/jspahrsummers/libextobjc.git
+[submodule "Libraries/GHWalkThrough"]
+	path = Libraries/GHWalkThrough
+	url = https://github.com/GnosisHub/GHWalkThrough.git
+[submodule "Libraries/NJKWebViewProgress"]
+	path = Libraries/NJKWebViewProgress
+	url = https://github.com/ninjinkun/NJKWebViewProgress.git

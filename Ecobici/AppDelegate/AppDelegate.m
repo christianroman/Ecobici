@@ -7,9 +7,9 @@
 //
 
 #import "AppDelegate.h"
-#import "MainViewController.h"
 #import "UIColor+Utilities.h"
 #import "MSMenuViewController.h"
+#import "MapSettingsViewController.h"
 
 @interface AppDelegate () <MSDynamicsDrawerViewControllerDelegate>
 
@@ -33,6 +33,13 @@
                                               forDirection:MSDynamicsDrawerDirectionLeft];
     [self.dynamicsDrawerViewController setPaneDragRevealEnabled:NO forDirection:MSDynamicsDrawerDirectionLeft];
     
+    MapSettingsViewController *mapSettingsViewController = [MapSettingsViewController new];
+    [_dynamicsDrawerViewController addStylersFromArray:@[[MSDynamicsDrawerParallaxStyler styler],
+                                                         [MSDynamicsDrawerShadowStyler styler]]
+                                          forDirection:MSDynamicsDrawerDirectionRight];
+    [_dynamicsDrawerViewController setPaneDragRevealEnabled:NO forDirection:MSDynamicsDrawerDirectionRight];
+    [_dynamicsDrawerViewController setDrawerViewController:mapSettingsViewController forDirection:MSDynamicsDrawerDirectionRight];
+    
     MSMenuViewController *menuViewController = [MSMenuViewController new];
     menuViewController.dynamicsDrawerViewController = self.dynamicsDrawerViewController;
     [self.dynamicsDrawerViewController setDrawerViewController:menuViewController forDirection:MSDynamicsDrawerDirectionLeft];
@@ -42,10 +49,12 @@
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     [self.window setTintColor:[UIColor CR_firstColor]];
     self.window.rootViewController = self.dynamicsDrawerViewController;
+    
+    [[UINavigationBar appearance] setTitleTextAttributes:@{ NSForegroundColorAttributeName : [UIColor CR_firstColor] }];
+    
     [self.window makeKeyAndVisible];
     [self.window addSubview:self.windowBackground];
     [self.window sendSubviewToBack:self.windowBackground];
-    
     return YES;
 }
 
@@ -100,28 +109,6 @@
 {
     //NSLog(@"Drawer view controller did update to state `%@` for direction `%@`", [self descriptionForPaneState:paneState], [self descriptionForDirection:direction]);
 }
-
-/*
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    
-    [self.window setTintColor:[UIColor CR_firstColor]];
-    
-    MainViewController *mainViewController = [[MainViewController alloc] init];
-    
-    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:mainViewController];
-    
-    [[UINavigationBar appearance] setTitleTextAttributes:@{ NSForegroundColorAttributeName : [UIColor CR_firstColor] }];
-    
-    [self.window setRootViewController:navigationController];
-    
-    // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
-    [self.window makeKeyAndVisible];
-    return YES;
-}
- */
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
